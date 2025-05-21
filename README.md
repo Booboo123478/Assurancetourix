@@ -28,8 +28,7 @@ Assurez-vous d’avoir installé :
 1. **Cloner le dépôt**
 
 ```bash
-git clone https://github.com/votre-utilisateur/handi-community-app.git
-cd handi-community-app
+git clone https://github.com/TON_NOM/Assurancetourix.git
 ```
 
 2. **Installer les dépendances**
@@ -37,7 +36,7 @@ cd handi-community-app
 npm install
 ```
 
-3. **Lancer le projet sur ke port 3000**
+3. **Lancer le projet sur le port 3000**
 ```bash
 npm start
 ```
