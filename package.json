@@ -1,0 +1,13 @@
+{
+  "name": "assurancetourix-app",
+  "version": "1.0.0",
+  "description": "MVP d'une application communautaire pour les personnes en situation de handicap",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.4"
+  }
+}
