@@ -3,9 +3,25 @@ const path = require('path');
 const mongoose = require('mongoose');
 const app = express();
 const bcrypt = require('bcrypt');
+const fs = require('fs');
+const userSchema = new mongoose.Schema({
+  firstName: String,
+  lastName: String,
+  email: { type: String, unique: true },
+  password: String,
+  createdAt: { type: Date, default: Date.now }
+});
+const User = mongoose.model('User', userSchema);
 
-// Configuration pour servir les fichiers statiques
+// Configuration des fichiers statiques
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Route pour vérifier que le CSS est accessible
+app.get('/check-css', (req, res) => {
+  const cssPath = path.join(__dirname, 'public', 'css', 'style.css');
+  res.send(`Le fichier CSS existe: ${fs.existsSync(cssPath)}`);
+});
+
 
 // Middleware pour parser les requêtes
 app.use(express.json());
@@ -22,9 +38,23 @@ app.get('/', (req, res) => {
 });
 
 // Routes API
-app.post('/register', (req, res) => {
-  console.log('Données d\'inscription:', req.body);
-  res.json({ message: 'Inscription reçue!', data: req.body });
+app.post('/register', async (req, res) => {
+  try {
+    const { firstName, lastName, email, password, confirmPassword } = req.body;
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({ error: "Les mots de passe ne correspondent pas" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = new User({ firstName, lastName, email, password: hashedPassword });
+    await user.save();
+
+    res.json({ success: true, message: "Inscription réussie !" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Erreur lors de l'inscription" });
+  }
 });
 
 app.post('/login', async (req, res) => {
@@ -91,3 +121,4 @@ app.get('/profil', (req, res) => {
 app.get('/communaute', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'communaute.html'));
 });
+

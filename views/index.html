@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="/style.css" />
     <title>Assurancetourix | Connexion & Inscription</title>
     <link rel="icon" href="img/Icon logo.png" />
 </head>
@@ -130,7 +130,7 @@
         }
 
         function register() {
-            document.getElementById("login").style.left = "-530px";
+            document.getElementById("login").style.left = "-523px";
             document.getElementById("register").style.left = "-523px";
             document.getElementById("login").style.opacity = 0;
             document.getElementById("register").style.opacity = 1;
@@ -167,25 +167,6 @@
             const confirmPasswordInput = document.getElementById("confirmregisterpassword");
             const form = document.getElementById("RegisterForm");
 
-            form.addEventListener("submit", function (event) {
-                event.preventDefault();
-                const password = passwordInput.value;
-                const confirmPassword = confirmPasswordInput.value;
-
-                if (!validatePassword(password)) {
-                    alert("Le mot de passe ne respecte pas les critères de sécurité.");
-                    return;
-                }
-
-                if (password !== confirmPassword) {
-                    alert("Les mots de passe ne correspondent pas.");
-                    return;
-                }
-
-                alert("Mot de passe valide. Inscription en cours...");
-                form.submit();
-            });
-
             function validatePassword(password) {
                 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
                 return passwordRegex.test(password);
@@ -200,16 +181,8 @@
         }
 
         login(); // Affiche le formulaire de connexion par défaut
-    </script>
-<script>
-  // Fonctions existantes (conservez-les toutes)
-  function myMenuFunction() { /* ... */ }
-  function login() { /* ... */ }
-  function register() { /* ... */ }
-  // etc...
 
-  // Nouvelle fonction pour l'inscription
-  async function handleRegister(event) {
+    async function handleRegister(event) {
     event.preventDefault();
     const form = event.target;
     
