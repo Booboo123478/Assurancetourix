@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="css/style.css" />
     <title>Assurancetourix | Connexion & Inscription</title>
     <link rel="icon" href="img/Icon logo.png" />
 </head>
@@ -20,8 +20,8 @@
             </div>
             <div class="nav-menu" id="navMenu">
                 <ul>
-                    <li><a href="index.html" class="link active">Accueil</a></li>
-                    <li><a href="profil.html" class="link">Profil</a></li>
+                    <li><a href="/" class="link active">Accueil</a></li>
+                    <li><a href="profil.html" class="link">Profil</a></li>    
                     <li><a href="communaute.html" class="link">Communauté</a></li>
                 </ul>
             </div>
@@ -39,17 +39,17 @@
 
         <!-- Connexion -->
         <div class="login-container" id="login">
-            <form onsubmit="return validateLogin()">
+            <form id="loginForm">
                 <div class="accueil_form_top">
                     <span>Vous n'avez pas de compte ? <a href="#" onclick="register()">Créer mon compte</a></span>
                     <p>Connexion</p>
                 </div>
                 <div class="input-box">
-                    <input id="email-login" required autocomplete="off" class="input-field" placeholder="E-mail" />
+                    <input name="email" id="email-login" required class="input-field" placeholder="E-mail">
                     <i class="bx bx-user"></i>
                 </div>
                 <div class="input-box">
-                    <input id="password" type="password" class="input-field" placeholder="Mot de passe" />
+                    <input name="password" id="password" type="password" class="input-field" placeholder="Mot de passe">
                     <i class="bx bx-lock-alt"></i>
                 </div>
                 <div class="input-box">
@@ -77,25 +77,24 @@
                     <p>Inscription</p>
                 </div>
                 <div class="register_row">
-                    <div class="input-box">
-                        <input type="text" class="input-field" placeholder="Prénom" />
-                        <i class="bx bx-user"></i>
-                    </div>
-                    <div class="input-box">
-                        <input type="text" class="input-field" placeholder="Nom" />
-                        <i class="bx bx-user"></i>
-                    </div>
+                <div class="input-box">
+                    <input name="firstName" type="text" class="input-field" placeholder="Prénom">
+                    <i class="bx bx-user"></i>
                 </div>
                 <div class="input-box">
-                    <input id="email-register" class="input-field" placeholder="E-mail" />
+                    <input name="lastName" type="text" class="input-field" placeholder="Nom">
+                    <i class="bx bx-user"></i>
+                </div>
+                <div class="input-box">
+                    <input name="email" id="email-register" class="input-field" placeholder="E-mail">
                     <i class="bx bx-envelope"></i>
                 </div>
                 <div class="input-box">
-                    <input id="registerpassword" type="password" class="input-field" placeholder="Mot de passe" />
+                    <input name="password" id="registerpassword" type="password" class="input-field" placeholder="Mot de passe">
                     <i class="bx bx-lock-alt"></i>
                 </div>
                 <div class="input-box">
-                    <input id="confirmregisterpassword" type="password" class="input-field" placeholder="Confirmation du mot de passe" />
+                    <input name="confirmPassword" id="confirmregisterpassword" type="password" class="input-field" placeholder="Confirmation du mot de passe">
                     <i class="bx bx-lock-alt"></i>
                 </div>
                 <div class="input-box">
@@ -202,5 +201,77 @@
 
         login(); // Affiche le formulaire de connexion par défaut
     </script>
+<script>
+  // Fonctions existantes (conservez-les toutes)
+  function myMenuFunction() { /* ... */ }
+  function login() { /* ... */ }
+  function register() { /* ... */ }
+  // etc...
+
+  // Nouvelle fonction pour l'inscription
+  async function handleRegister(event) {
+    event.preventDefault();
+    const form = event.target;
+    
+    const userData = {
+      firstName: form.querySelector('[name="firstName"]').value,
+      lastName: form.querySelector('[name="lastName"]').value,
+      email: form.querySelector('[name="email"]').value,
+      password: form.querySelector('[name="password"]').value,
+      confirmPassword: form.querySelector('[name="confirmPassword"]').value
+    };
+
+    try {
+      const response = await fetch('/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData)
+      });
+      
+      const result = await response.json();
+      if (result.success) {
+        alert("Inscription réussie !");
+        window.location.href = "/profil";
+      } else {
+        alert(result.error);
+      }
+    } catch (error) {
+      alert("Erreur réseau");
+    }
+  }
+
+  // Écouteurs d'événements
+  document.getElementById('RegisterForm').addEventListener('submit', handleRegister);
+  document.getElementById('loginForm').addEventListener('submit', handleLogin);
+
+  async function handleLogin(event) {
+  event.preventDefault();
+  const form = event.target;
+  
+  const userData = {
+    email: form.querySelector('[name="email"]').value,
+    password: form.querySelector('[name="password"]').value
+  };
+
+  try {
+    const response = await fetch('/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData)
+    });
+    
+    const result = await response.json();
+    if (result.success) {
+      alert("Connexion réussie !");
+      window.location.href = "/profil";
+    } else {
+      alert(result.error || "Email ou mot de passe incorrect");
+    }
+  } catch (error) {
+    console.error('Erreur:', error);
+    alert("Erreur lors de la connexion");
+  }
+}
+</script>
 </body>
 </html>
