@@ -31,12 +31,12 @@ const User = mongoose.model('User', userSchema);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Configuration de la session (à mettre ici, au début, avant tes routes)
+// Configuration de la session
 app.use(session({
-  secret: 'une clé secrète',    // à changer par une vraie clé secrète
+  secret: 'une clé secrète',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false }     // mettre true si HTTPS
+  cookie: { secure: false }   
 }));
 
 app.use((req, res, next) => {
@@ -49,7 +49,7 @@ app.use((req, res, next) => {
 // Configuration des fichiers statiques
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Route pour vérifier que le CSS est accessible (utile en dev)
+// Route pour vérifier que le CSS est accessible
 app.get('/check-css', (req, res) => {
   const cssPath = path.join(__dirname, 'public', 'css', 'style.css');
   res.send(`Le fichier CSS existe: ${fs.existsSync(cssPath)}`);
@@ -63,7 +63,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/assurancetourix', {
 .then(() => console.log('Connecté à MongoDB'))
 .catch(err => console.error('Erreur MongoDB:', err));
 
-// Routes pour les pages statiques
+// Routes pour les pages
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'index.html'));
 });
@@ -72,8 +72,8 @@ app.get('/profil', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'profil.html'));
 });
 
-app.get('/communaute', (req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'communaute.html'));
+app.get('/forum', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'forum.html'));
 });
 
 // Route d'inscription
@@ -106,11 +106,12 @@ app.post('/register', async (req, res) => {
   }
 });
 
+// Route de connexion
 app.post('/login', async (req, res) => {
   try {
     console.log('Tentative de connexion:', req.body);
     
-    // 1. Vérification des champs requis
+    // Vérification des champs requis
     if (!req.body.email || !req.body.password) {
       return res.status(400).json({ 
         success: false,
@@ -118,7 +119,7 @@ app.post('/login', async (req, res) => {
       });
     }
 
-    // 2. Vérification dans MongoDB (version réelle)
+    // Vérification dans MongoDB
     const user = await User.findOne({ email: req.body.email });
     
     if (!user) {
@@ -128,7 +129,7 @@ app.post('/login', async (req, res) => {
       });
     }
 
-    // 3. Comparaison des mots de passe (avec bcrypt)
+    // Comparaison des mots de passe
     const isMatch = await bcrypt.compare(req.body.password, user.password);
     
     if (!isMatch) {
@@ -138,7 +139,6 @@ app.post('/login', async (req, res) => {
       });
     }
 
-    // 4. Réponse en cas de succès
     req.session.userId = user._id; 
     res.json({ 
       success: true,
@@ -159,36 +159,19 @@ app.post('/login', async (req, res) => {
   }
 });
 
+// Route Post du profil
 app.post('/api/profil', async (req, res) => {
   if (!req.user) {
     return res.status(401).json({ message: "Non authentifié" });
   }
-
-  // try {
-  //   const updateData = {
-  //     firstName: req.body.firstName,
-  //     lastName: req.body.lastName,
-  //     ville: req.body.ville,
-  //     telephone: req.body.telephone,
-  //     handicap: req.body.handicap,
-  //     communities: req.body.communities || []
-  //   };
-
-  //   if (password && password.length > 0) {
-  //     const hashed = await bcrypt.hash(password, 10);
-  //     user.password = hashed;
-  //   }
-
-    // // Met à jour l'utilisateur dans MongoDB
-    // await User.findByIdAndUpdate(req.user.id, updateData);
   try {
     const { firstName, lastName, ville, telephone, handicap, communities, password } = req.body;
 
-    // Récupère l'utilisateur
+    // Récupération de l'utilisateur
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ message: "Utilisateur non trouvé" });
 
-    // Mets à jour les champs simples
+    // Maj des champs
     user.firstName = firstName;
     user.lastName = lastName;
     user.ville = ville;
@@ -196,13 +179,13 @@ app.post('/api/profil', async (req, res) => {
     user.handicap = handicap;
     user.communities = communities || [];
 
-    // Mets à jour le mot de passe si besoin
+    // Maj du mdp
     if (password && password.length > 0) {
       const hashed = await bcrypt.hash(password, 10);
       user.password = hashed;
     }
 
-    // Sauvegarde l'utilisateur
+    // Sauvegarde de l'utilisateur
     await user.save();
     res.json({ success: true, message: "Profil mis à jour" });
   } catch (err) {
@@ -211,6 +194,7 @@ app.post('/api/profil', async (req, res) => {
   }
 });
 
+// Route Get du profil
 app.get('/api/profil', async (req, res) => {
   if (!req.user) {
     return res.status(401).json({ message: "Non authentifié" });
@@ -219,6 +203,7 @@ app.get('/api/profil', async (req, res) => {
   const user = await User.findById(req.user.id);
   if (!user) return res.status(404).json({ message: "Utilisateur non trouvé" });
 
+  // Récupération des infos de l'utilisateur
   res.json({
     email: user.email,
     firstName: user.firstName,
@@ -230,15 +215,226 @@ app.get('/api/profil', async (req, res) => {
   });
 });
 
+// Route de déconnexion
 app.post('/logout', (req, res) => {
   req.session.destroy(err => {
     if (err) {
       return res.status(500).send("Erreur déconnexion");
     }
-    res.clearCookie('connect.sid'); // nom de cookie par défaut express-session
+    res.clearCookie('connect.sid');
     res.send("Déconnecté");
   });
 });
+
+// Route pour récupérer les infos de l'utilisateur connecté
+app.get('/api/me', async (req, res) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ error: 'Utilisateur non connecté' });
+  }
+  
+  try {
+    const user = await User.findById(req.session.userId);
+    if (!user) {
+      return res.status(401).json({ error: 'Utilisateur non connecté' });
+    }
+
+    res.json({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email
+    });
+  } catch (err) {
+    console.error('Erreur récupération utilisateur:', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+// Route de debug pour récupérer les infos de l'utilisateur dans MongoDB
+// URL = http://localhost:3000/api/debug/users
+app.get('/api/debug/users', async (req, res) => {
+  try {
+    const users = await User.find({});
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+// Route de debug pour récupérer les infos des messages dans MongoDB
+// URL = http://localhost:3000/api/debug/messages
+app.get('/api/debug/messages', async (req, res) => {
+  try {
+    const messages = await Message.find({})
+      .sort({ createdAt: -1 }) 
+      .limit(20);               
+    res.json(messages);
+  } catch (err) {
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
+// Modèle des messages
+const Message = mongoose.model('Message', {
+  communaute: String,
+  auteur: String,
+  texte: String,
+  date: { type: Date, default: Date.now },
+  reactions: {
+    type: Map,
+    of: Number,
+    default: () => new Map()
+  },
+  replies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Message' }],
+  parent: { type: mongoose.Schema.Types.ObjectId, ref: 'Message', default: null },
+  mediaUrl: String
+});
+
+// Récupérer les Communautés de l'utilisateur
+app.get('/api/communities', async (req, res) => {
+  if (!req.user) return res.status(401).json({ message: "Non authentifié" });
+
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "Utilisateur non trouvé" });
+
+    res.json({ communities: user.communities || [] });
+  } catch (err) {
+    res.status(500).json({ error: "Erreur serveur" });
+  }
+});
+
+// Récupération des messages parents et enfants
+app.get('/api/forums/:communaute/messages', async (req, res) => {
+  try {
+    const messages = await Message.find({ communaute: req.params.communaute, parent: null })
+      .sort({ date: -1 })
+      .limit(50)
+      .lean();
+
+    for (const msg of messages) {
+      msg.replies = await Message.find({ parent: msg._id }).sort({ date: 1 }).lean();
+    }
+
+    res.json(messages);
+  } catch (err) {
+    res.status(500).json({ error: 'Erreur de récupération des messages' });
+  }
+});
+
+
+// Poster un message dans une communauté
+app.post('/api/forums/:communaute/messages', express.json(), async (req, res) => {
+  try {
+    const { auteur, texte } = req.body;
+    if (!texte || !auteur) return res.status(400).json({ error: 'Texte et auteur requis' });
+
+    const message = new Message({
+      communaute: req.params.communaute,
+      auteur,
+      texte
+    });
+    await message.save();
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Erreur lors de l\'envoi du message' });
+  }
+});
+
+// Réaction à un message
+app.post('/api/messages/:id/react', express.json(), async (req, res) => {
+  const messageId = req.params.id;
+  const { reaction } = req.body;
+
+  if (!reaction) {
+    return res.status(400).json({ error: "Type de réaction manquant." });
+  }
+
+  try {
+    const message = await Message.findById(messageId);
+    if (!message) {
+      return res.status(404).json({ error: "Message introuvable." });
+    }
+
+    if (!message.reactions) {
+      message.reactions = new Map();
+    }
+
+    const currentCount = message.reactions.get(reaction) || 0;
+    message.reactions.set(reaction, currentCount + 1);
+
+    await message.save();
+
+    const reactionsObj = {};
+    for (const [key, value] of message.reactions.entries()) {
+      reactionsObj[key] = value;
+    }
+
+    res.status(200).json({ success: true, reactions: reactionsObj });
+
+  } catch (err) {
+    console.error("Erreur lors de la réaction :", err);
+    res.status(500).json({ error: "Erreur serveur lors de la réaction." });
+  }
+});
+
+
+// Reponse à un message
+app.post('/api/messages/:id/reply', express.json(), async (req, res) => {
+  const { auteur, texte } = req.body;
+  const parentId = req.params.id;
+
+  if (!auteur || !texte) {
+    return res.status(400).json({ error: "Auteur ou texte manquant." });
+  }
+
+  try {
+    const parentMessage = await Message.findById(parentId);
+    if (!parentMessage) {
+      return res.status(404).json({ error: "Message parent introuvable." });
+    }
+    const reply = new Message({
+      auteur,
+      texte,
+      date: new Date(),
+      communaute: parentMessage.communaute,
+      parent: parentId 
+    });
+
+    await reply.save();
+    res.status(201).json({ success: true, reply });
+
+  } catch (err) {
+    console.error("Erreur lors de la création de la réponse :", err);
+    res.status(500).json({ error: "Erreur serveur lors de l'envoi de la réponse." });
+  }
+});
+
+// Contenue Multimédia
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
+app.post('/api/forums/:communaute/messages-with-media', upload.single('media'), async (req, res) => {
+  const { auteur, texte } = req.body;
+  const file = req.file;
+
+  try {
+    const mediaUrl = file ? `/uploads/${file.filename}` : null;
+
+    const message = new Message({
+      communaute: req.params.communaute,
+      auteur,
+      texte,
+      mediaUrl
+    });
+
+    await message.save();
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Erreur envoi avec média' });
+  }
+});
+
+// Chemin d'upload du contenu multimedia
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Démarrage du serveur
 const PORT = 3000;

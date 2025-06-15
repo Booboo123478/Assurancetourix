@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Communautés - Forum</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/style.css" />
+  <style>
+    body {
+      display: flex;
+      font-family: sans-serif;
+    }
+
+    .sidebar {
+      width: 250px;
+      background: #f4f4f4;
+      padding: 1rem;
+      height: 100vh;
+      border-right: 1px solid #ddd;
+    }
+
+    .sidebar h2 {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+    }
+
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .sidebar li {
+      padding: 0.5rem 0;
+      cursor: pointer;
+      color: #007bff;
+    }
+
+    .sidebar li:hover {
+      text-decoration: underline;
+    }
+
+    .forum-content {
+      flex: 1;
+      padding: 2rem;
+    }
+
+    .forum-title {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100px;
+      margin-bottom: 1rem;
+    }
+
+    .message-list {
+      margin-top: 2rem;
+      border-top: 1px solid #ccc;
+    }
+
+    .message-item {
+      border-bottom: 1px solid #eee;
+      padding: 1rem 0;
+    }
+
+    .author {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>Mes Communautés</h2>
+    <ul id="communityList">
+    </ul>
+  </div>
+
+  <div class="forum-content">
+    <h1 class="forum-title" id="forumTitle">Sélectionnez une communauté</h1>
+
+    <form id="messageForm" style="display: none;">
+      <textarea id="messageText" placeholder="Votre message..."></textarea>
+      <input type="file" id="mediaFile" accept="image/*,video/*">
+      <button type="submit">Envoyer</button>
+    </form>
+
+    <div class="message-list" id="messageList"></div>
+  </div>
+
+
+
+
+
+
+    <script>
+    const communityTitles = {
+        "handicap-visuel": "Handicap Visuel",
+        "handicap-moteur": "Handicap Moteur",
+        "handicap-auditif": "Handicap Auditif",
+        "handicap-mental": "Handicap Mental",
+        "accessibilite": "Accessibilité et Technologies"
+    };
+
+    const communityListEl = document.getElementById("communityList");
+    const forumTitle = document.getElementById("forumTitle");
+    const messageForm = document.getElementById("messageForm");
+    const messageText = document.getElementById("messageText");
+    const messageList = document.getElementById("messageList");
+    let pseudo = "Anonyme";
+    let currentCommunity = null;
+
+    async function init() {
+        try {
+        const res = await fetch('/api/me');
+        if (!res.ok) throw new Error('Non connecté');
+        const user = await res.json();
+        pseudo = `${user.firstName} ${user.lastName}`;
+        console.log("Pseudo récupéré:", pseudo);
+        } catch (e) {
+        console.warn("Erreur récupération pseudo, on reste Anonyme");
+        }
+
+        messageForm.style.display = 'block';
+
+        messageForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const text = messageText.value.trim();
+        const fileInput = document.getElementById('mediaFile');
+        if (!text && fileInput.files.length === 0) {
+            alert("Veuillez écrire un message ou sélectionner un média.");
+            return;
+        }
+        if (!currentCommunity) {
+            alert("Sélectionnez une communauté avant d'envoyer un message.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('auteur', pseudo);
+        formData.append('texte', text);
+
+        if (fileInput.files.length > 0) {
+            formData.append('media', fileInput.files[0]);
+        }
+
+        try {
+            const response = await fetch(`/api/forums/${currentCommunity}/messages-with-media`, {
+            method: 'POST',
+            body: formData,
+            });
+
+            if (!response.ok) throw new Error('Erreur lors de l\'envoi');
+
+            messageText.value = "";
+            fileInput.value = "";
+            await loadMessages(currentCommunity);
+        } catch (error) {
+            alert("Erreur d'envoi du message.");
+            console.error(error);
+        }
+        });
+    }
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        try {
+        const response = await fetch('/api/communities');
+        if (!response.ok) throw new Error('Erreur récupération communautés');
+        const data = await response.json();
+
+        communityListEl.innerHTML = '';
+
+        if (!data.communities || data.communities.length === 0) {
+            communityListEl.innerHTML = '<li>Aucune communauté suivie</li>';
+            return;
+        }
+
+        data.communities.forEach(communaute => {
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.href = `/forum?communaute=${encodeURIComponent(communaute)}`;
+            a.textContent = communityTitles[communaute] || communaute;
+            li.appendChild(a);
+            communityListEl.appendChild(li);
+        });
+
+        communityListEl.querySelectorAll('a').forEach(a => {
+            a.addEventListener('click', e => {
+            e.preventDefault();
+            const comm = e.target.getAttribute('href').split('communaute=')[1];
+            if (comm) {
+                showForum(decodeURIComponent(comm));
+                history.pushState(null, '', `/forum?communaute=${comm}`);
+            }
+            });
+        });
+
+        const params = new URLSearchParams(window.location.search);
+        const commInit = params.get('communaute');
+        if (commInit) {
+            showForum(commInit);
+        } else {
+            forumTitle.textContent = 'Sélectionnez une communauté';
+            messageForm.style.display = 'none';
+        }
+
+        init();
+        } catch (err) {
+        console.error('Erreur:', err);
+        }
+    });
+
+    window.addEventListener('popstate', () => {
+        const params = new URLSearchParams(window.location.search);
+        const comm = params.get('communaute');
+        if (comm) {
+        showForum(comm);
+        } else {
+        forumTitle.textContent = 'Sélectionnez une communauté';
+        messageForm.style.display = 'none';
+        messageList.innerHTML = '';
+        currentCommunity = null;
+        }
+    });
+
+    function showForum(communaute) {
+        forumTitle.textContent = `Forum - ${communityTitles[communaute] || communaute}`;
+        messageForm.style.display = 'block';
+        messageList.innerHTML = '';
+        currentCommunity = communaute;
+        loadMessages(communaute);
+    }
+
+    async function loadMessages(communaute) {
+        try {
+        const res = await fetch(`/api/forums/${communaute}/messages`);
+        if (!res.ok) throw new Error('Erreur lors du chargement des messages');
+        const messages = await res.json();
+
+        messageList.innerHTML = '';
+
+        if (!Array.isArray(messages)) {
+            messageList.textContent = 'Les messages sont introuvables ou mal formatés.';
+            console.error('Réponse messages non tableau:', messages);
+            return;
+        }
+
+        if (messages.length === 0) {
+            messageList.textContent = 'Aucun message dans cette communauté.';
+            return;
+        }
+
+        messages.forEach(msg => {
+            const messageDiv = createMessageElement(msg);
+            messageList.appendChild(messageDiv);
+        });
+        } catch (error) {
+        console.error(error);
+        messageList.textContent = "Impossible de charger les messages.";
+        }
+    }
+
+    function createMessageElement(msg, isReply = false) {
+        const div = document.createElement('div');
+        div.classList.add('message-item');
+        if (isReply) div.style.marginLeft = '30px';
+
+        let mediaHTML = '';
+        if (msg.mediaUrl) {
+            if (msg.mediaUrl.endsWith('.mp4')) {
+                mediaHTML = `
+                    <video controls width="300">
+                        <source src="${msg.mediaUrl}" type="video/mp4">
+                        Votre navigateur ne supporte pas la lecture vidéo.
+                    </video>
+                `;
+            } else {
+                mediaHTML = `<img src="${msg.mediaUrl}" alt="media" width="200">`;
+            }
+        }
+
+        const reactions = msg.reactions || {};
+
+        div.innerHTML = `
+            <strong>${msg.auteur}</strong> 
+            <em>${new Date(msg.date).toLocaleString()}</em>
+            <p>${msg.texte}</p>
+            ${mediaHTML}
+            <div class="reactions">
+                <button onclick="react('${msg._id}', 'like')">👍 (${reactions.like || 0})</button>
+                <button onclick="react('${msg._id}', 'heart')">❤️ (${reactions.heart || 0})</button>
+            </div>
+            <div id="replyForm-${msg._id}" style="display:none; margin-top:10px;">
+                <textarea id="replyText-${msg._id}" rows="3" placeholder="Répondre..."></textarea><br>
+                <button onclick="sendReply('${msg._id}')">Envoyer la réponse</button>
+            </div>
+            <button onclick="showReplyForm('${msg._id}')">Répondre</button>
+        `;
+
+        if (msg.replies && msg.replies.length > 0) {
+            msg.replies.forEach(rep => {
+                const replyDiv = createMessageElement(rep, true);
+                div.appendChild(replyDiv);
+            });
+        }
+
+        return div;
+    }
+
+    function showReplyForm(id) {
+        const form = document.getElementById(`replyForm-${id}`);
+        if (form.style.display === 'none') {
+        form.style.display = 'block';
+        const textarea = document.getElementById(`replyText-${id}`);
+        if (textarea) textarea.focus();
+        } else {
+        form.style.display = 'none';
+        }
+    }
+
+    async function sendReply(parentId) {
+        const textarea = document.getElementById(`replyText-${parentId}`);
+        const texte = textarea.value.trim();
+        if (!texte) return alert("Écrivez un texte pour la réponse.");
+
+        try {
+        const res = await fetch(`/api/messages/${parentId}/reply`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ auteur: pseudo, texte })
+        });
+
+        if (!res.ok) throw new Error('Erreur lors de l\'envoi de la réponse');
+        
+        textarea.value = '';
+        document.getElementById(`replyForm-${parentId}`).style.display = 'none';
+        await loadMessages(currentCommunity);
+        } catch (err) {
+        alert("Erreur lors de l'envoi de la réponse.");
+        console.error(err);
+        }
+    }
+
+    function react(messageId, reactionType) {
+        fetch(`/api/messages/${messageId}/react`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reaction: reactionType })
+        })
+        .then(res => {
+            if (!res.ok) throw new Error('Erreur lors de la réaction');
+            loadMessages(currentCommunity);
+        })
+        .catch(err => {
+            alert("Erreur lors de l'ajout de la réaction.");
+            console.error(err);
+        });
+    }
+    </script>
+
+</body>
+</html>

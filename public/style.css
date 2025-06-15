@@ -111,7 +111,7 @@ header{
 
 ::placeholder {
   color: black;
-  opacity: 1; /* Firefox */
+  opacity: 1; 
 }
 
 textarea {
@@ -166,7 +166,7 @@ textarea {
   transition: .5s ease-in-out;
 }
 
-.input-box i{ /*icons profil et mdp*/
+.input-box i{
   position: relative;
   top: -35px;
   left: 17px;
@@ -174,7 +174,6 @@ textarea {
 }
 
 .register_row{
-  /* display: flex; */
   gap: 10px;
 }
 
@@ -198,7 +197,7 @@ textarea {
   padding: 10px 0 30px 0;
 }
 
-.login_bottom{  /*barre se souvenir plus conditions*/
+.login_bottom{  
   display: flex;
   justify-content: space-between;
   color: #000;
@@ -206,12 +205,12 @@ textarea {
   margin-top: 10px;
 }
 
-.login_bottom .one{ /*se souvenir de moi*/
+.login_bottom .one{ 
   display: flex;
   gap: 5px;
 }
 
-.login_bottom .two label a{ /*Conditions générales*/
+.login_bottom .two label a{ 
   text-decoration: none;
   color: #000;
 }
@@ -219,7 +218,7 @@ textarea {
 .login_bottom .two label a:hover{
   text-decoration: underline;
 }
-.register_bottom{  /*Afficher les mots de passe*/
+.register_bottom{  
   display: flex;
   justify-content: space-between;
   color: #000;
@@ -227,7 +226,7 @@ textarea {
   margin-top: 10px;
 }
 
-.register_bottom .three{ /*Afficher les mots de passe*/
+.register_bottom .three{ 
   display: flex;
   gap: 5px;
 }

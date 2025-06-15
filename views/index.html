@@ -158,8 +158,6 @@
                 alert("Mot de passe non rempli");
                 return false;
             }
-
-            // Appel à la base de données ici si nécessaire
             return true;
         }
 
@@ -181,7 +179,7 @@
             y.type = y.type === "password" ? "text" : "password";
         }
 
-        login(); // Affiche le formulaire de connexion par défaut
+        login();
 
     async function handleRegister(event) {
     event.preventDefault();
@@ -214,7 +212,6 @@
     }
   }
 
-  // Écouteurs d'événements
   document.getElementById('RegisterForm').addEventListener('submit', handleRegister);
   document.getElementById('loginForm').addEventListener('submit', handleLogin);
 
