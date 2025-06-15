@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/style.css" />
+    <title>Assurancetourix | Connexion & Inscription</title>
+    <link rel="icon" href="img/Icon logo.png" />
+</head>
+
+<body>
+    <header>
+        <nav class="nav">
+            <div class="logo">
+                <a href="#Accueil">
+                    <img src="img/Logo-Assurancetourix.png" width="300" alt="Logo Assurancetourix" />
+                </a>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <ul>
+                    <li><a href="/" class="link active">Accueil</a></li>
+                    <li><a href="profil.html" class="link">Profil</a></li>    
+                    <li><a href="communaute.html" class="link">Communauté</a></li>
+                </ul>
+            </div>
+            <div class="nav-button">
+                <button class="btn white-btn" id="loginBtn" onclick="login()">Se connecter</button>
+                <button class="btn" id="registerBtn" onclick="register()">S'inscrire</button>
+            </div>
+            <div class="nav-menu-btn">
+                <i class="bx bx-menu" onclick="myMenuFunction()"></i>
+            </div>
+        </nav>
+    </header>
+
+    <section class="accueil_form-box">
+
+        <!-- Connexion -->
+        <div class="login-container" id="login">
+            <form id="loginForm">
+                <div class="accueil_form_top">
+                    <span>Vous n'avez pas de compte ? <a href="#" onclick="register()">Créer mon compte</a></span>
+                    <p>Connexion</p>
+                </div>
+                <div class="input-box">
+                    <input name="email" id="email-login" required class="input-field" placeholder="E-mail">
+                    <i class="bx bx-user"></i>
+                </div>
+                <div class="input-box">
+                    <input name="password" id="password" type="password" class="input-field" placeholder="Mot de passe">
+                    <i class="bx bx-lock-alt"></i>
+                </div>
+                <div class="input-box">
+                    <hr color="black" />
+                    <input type="submit" class="submit" value="Se connecter" />
+                    <hr color="black" />
+                </div>
+                <div class="login_bottom">
+                    <div class="one">
+                        <input type="checkbox" id="login-check" />
+                        <label for="login-check"> Se souvenir de moi</label>
+                    </div>
+                    <div class="two">
+                        <label><a href="#">Mot de passe oublié ?</a></label>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Inscription -->
+        <div class="register-container" id="register">
+            <form id="RegisterForm" method="post">
+                <div class="accueil_form_top">
+                    <span>Vous avez déjà un compte ? <a href="#" onclick="login()">Connexion</a></span>
+                    <p>Inscription</p>
+                </div>
+                <div class="register_row">
+                <div class="input-box">
+                    <input name="firstName" type="text" class="input-field" placeholder="Prénom">
+                    <i class="bx bx-user"></i>
+                </div>
+                <div class="input-box">
+                    <input name="lastName" type="text" class="input-field" placeholder="Nom">
+                    <i class="bx bx-user"></i>
+                </div>
+                <div class="input-box">
+                    <input name="email" id="email-register" class="input-field" placeholder="E-mail">
+                    <i class="bx bx-envelope"></i>
+                </div>
+                <div class="input-box">
+                    <input name="password" id="registerpassword" type="password" class="input-field" placeholder="Mot de passe">
+                    <i class="bx bx-lock-alt"></i>
+                </div>
+                <div class="input-box">
+                    <input name="confirmPassword" id="confirmregisterpassword" type="password" class="input-field" placeholder="Confirmation du mot de passe">
+                    <i class="bx bx-lock-alt"></i>
+                </div>
+                <div class="input-box">
+                    <hr color="black" />
+                    <input type="submit" class="submit" value="S'inscrire" />
+                    <hr color="black" />
+                </div>
+                <div class="register_bottom">
+                    <div class="three">
+                        <input type="checkbox" onclick="myFunction()" id="register-check" />
+                        <label for="register-check">Afficher les mots de passe</label>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </section>
+
+    <script>
+        function myMenuFunction() {
+            const i = document.getElementById("navMenu");
+            i.className = (i.className === "nav-menu") ? "nav-menu responsive" : "nav-menu";
+        }
+
+        function login() {
+            document.getElementById("login").style.left = "7px";
+            document.getElementById("register").style.left = "0px";
+            document.getElementById("login").style.opacity = 1;
+            document.getElementById("register").style.opacity = 0;
+
+            document.getElementById("loginBtn").className = "btn white-btn";
+            document.getElementById("registerBtn").className = "btn";
+        }
+
+        function register() {
+            document.getElementById("login").style.left = "-523px";
+            document.getElementById("register").style.left = "-523px";
+            document.getElementById("login").style.opacity = 0;
+            document.getElementById("register").style.opacity = 1;
+
+            document.getElementById("loginBtn").className = "btn";
+            document.getElementById("registerBtn").className = "btn white-btn";
+        }
+
+        function checkEmail(email) {
+            const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return regexEmail.test(email);
+        }
+
+        function validateLogin() {
+            const emailValue = document.getElementById("email-login").value;
+            const pwdValue = document.getElementById("password").value;
+
+            if (!checkEmail(emailValue)) {
+                alert("Adresse e-mail non valide");
+                return false;
+            }
+
+            if (pwdValue === "") {
+                alert("Mot de passe non rempli");
+                return false;
+            }
+
+            // Appel à la base de données ici si nécessaire
+            return true;
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const passwordInput = document.getElementById("registerpassword");
+            const confirmPasswordInput = document.getElementById("confirmregisterpassword");
+            const form = document.getElementById("RegisterForm");
+
+            function validatePassword(password) {
+                const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
+                return passwordRegex.test(password);
+            }
+        });
+
+        function myFunction() {
+            const x = document.getElementById("registerpassword");
+            const y = document.getElementById("confirmregisterpassword");
+            x.type = x.type === "password" ? "text" : "password";
+            y.type = y.type === "password" ? "text" : "password";
+        }
+
+        login(); // Affiche le formulaire de connexion par défaut
+
+    async function handleRegister(event) {
+    event.preventDefault();
+    const form = event.target;
+    
+    const userData = {
+      firstName: form.querySelector('[name="firstName"]').value,
+      lastName: form.querySelector('[name="lastName"]').value,
+      email: form.querySelector('[name="email"]').value,
+      password: form.querySelector('[name="password"]').value,
+      confirmPassword: form.querySelector('[name="confirmPassword"]').value
+    };
+
+    try {
+      const response = await fetch('/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData)
+      });
+      
+      const result = await response.json();
+      if (result.success) {
+        alert("Inscription réussie !");
+        window.location.href = "/profil";
+      } else {
+        alert(result.error);
+      }
+    } catch (error) {
+      alert("Erreur réseau");
+    }
+  }
+
+  // Écouteurs d'événements
+  document.getElementById('RegisterForm').addEventListener('submit', handleRegister);
+  document.getElementById('loginForm').addEventListener('submit', handleLogin);
+
+  async function handleLogin(event) {
+  event.preventDefault();
+  const form = event.target;
+  
+  const userData = {
+    email: form.querySelector('[name="email"]').value,
+    password: form.querySelector('[name="password"]').value
+  };
+
+  try {
+    const response = await fetch('/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData)
+    });
+    
+    const result = await response.json();
+    if (result.success) {
+      alert("Connexion réussie !");
+      window.location.href = "/profil";
+    } else {
+      alert(result.error || "Email ou mot de passe incorrect");
+    }
+  } catch (error) {
+    console.error('Erreur:', error);
+    alert("Erreur lors de la connexion");
+  }
+}
+</script>
+</body>
+</html>
