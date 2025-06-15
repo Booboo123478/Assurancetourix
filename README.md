@@ -22,5 +22,9 @@ npm install
 
 2. **Lancer le projet sur le port 3000**
 ```bash
+node ./app.js
+```
+Ou
+```bash
 npm start
 ```

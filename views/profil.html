@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="style.css" />
+  <title>Mon Profil</title>
+</head>
+<body>
+  <header>
+    <nav class="nav">
+      <div class="logo">
+        <a href="index.html">
+          <img src="img/Logo-Assurancetourix.png" width="300" alt="Logo Assurancetourix" />
+        </a>
+      </div>
+      <div class="nav-menu" id="navMenu">
+        <ul>
+          <li><a href="/" class="link">Accueil</a></li>
+          <li><a href="profil" class="link active">Profil</a></li>
+          <li><a href="communaute.html" class="link">Communauté</a></li>
+        </ul>
+      </div>
+      <div class="nav-button">
+        <button class="btn white-btn">Se connecter</button>
+        <button class="btn">S'inscrire</button>
+      </div>
+    </nav>
+  </header>
+
+  <section class="accueil_form-box">
+    <div class="login-container profile-container" id="profileContainer">
+      <div class="accueil_form_top">
+        <p>Mon Profil</p>
+      </div>
+      <form id="profilForm">
+
+        <div class="input-box">
+          <label for="email">Adresse mail</label>
+          <input type="email" id="email" class="input-field" readonly />
+        </div>
+        <div class="input-box">
+          <label for="prenom">Prénom</label>
+          <input type="text" id="prenom" class="input-field" readonly />
+        </div>
+        <div class="input-box">
+          <label for="nom">Nom</label>
+          <input type="text" id="nom" class="input-field" readonly />
+        </div>
+        <div class="input-box">
+          <label for="ville">Ville</label>
+          <input type="text" id="ville" class="input-field" readonly />
+        </div>
+        <div class="input-box">
+          <label for="telephone">Téléphone</label>
+          <input type="tel" id="telephone" class="input-field" readonly />
+        </div>
+        <div class="input-box">
+          <label for="handicap">Type de handicap</label>
+          <input type="text" id="handicap" class="input-field" readonly />
+        </div>
+
+        <div class="input-box" id="passwordBox" style="display:none;">
+          <label for="password">Mot de passe</label>
+          <input type="password" id="password" class="input-field" placeholder="Nouveau mot de passe" />
+        </div>
+
+
+        <fieldset class="input-box" id="communitiesFieldset" disabled>
+          <legend>Choisissez les communautés à suivre :</legend>
+          <label><input type="checkbox" name="communities" value="handicap-visuel" /> Handicap Visuel</label><br />
+          <label><input type="checkbox" name="communities" value="handicap-moteur" /> Handicap Moteur</label><br />
+          <label><input type="checkbox" name="communities" value="handicap-auditif" /> Handicap Auditif</label><br />
+          <label><input type="checkbox" name="communities" value="handicap-mental" /> Handicap Mental</label><br />
+          <label><input type="checkbox" name="communities" value="accessibilite" /> Accessibilité et Technologies</label>
+        </fieldset>
+
+        <div class="input-box btn-group">
+          <button type="button" class="btn white-btn" onclick="enableEdit()">Modifier</button>
+          <button type="submit" class="btn" disabled id="saveBtn">Enregistrer</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <script>
+    // Chargement initial du profil
+    window.addEventListener("DOMContentLoaded", async () => {
+      try {
+        const response = await fetch("/api/profil");
+        if (!response.ok) throw new Error("Erreur lors du chargement du profil");
+        const data = await response.json();
+
+        document.getElementById("email").value = data.email || "";
+        document.getElementById("prenom").value = data.firstName || "";
+        document.getElementById("nom").value = data.lastName || "";
+        document.getElementById("ville").value = data.ville || "";
+        document.getElementById("telephone").value = data.telephone || "";
+        document.getElementById("handicap").value = data.handicap || "";
+
+        if (Array.isArray(data.communities)) {
+          data.communities.forEach(community => {
+            const checkbox = document.querySelector(`input[name="communities"][value="${community}"]`);
+            if (checkbox) checkbox.checked = true;
+          });
+        }
+      } catch (err) {
+        console.error("Erreur de chargement du profil :", err);
+      }
+    });
+
+    function enableEdit() {
+      const fields = document.querySelectorAll(".input-field");
+      fields.forEach(input => input.removeAttribute("readonly"));
+      document.getElementById("communitiesFieldset").disabled = false;
+      document.getElementById("saveBtn").disabled = false;
+      document.getElementById("profileContainer").classList.add("editing");
+
+      document.getElementById("passwordBox").style.display = "block";
+    }
+
+    document.getElementById("profilForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const dataToSend = {
+        email: document.getElementById("email").value.trim(),
+        firstName: document.getElementById("prenom").value.trim(),
+        lastName: document.getElementById("nom").value.trim(),
+        ville: document.getElementById("ville").value.trim(),
+        telephone: document.getElementById("telephone").value.trim(),
+        handicap: document.getElementById("handicap").value.trim(),
+        communities: Array.from(document.querySelectorAll('input[name="communities"]:checked')).map(cb => cb.value)
+      };
+
+      console.log(dataToSend);
+
+      const newPassword = document.getElementById("password").value.trim();
+        if (newPassword.length > 0) {
+          dataToSend.password = newPassword;
+      }
+
+      try {
+        const res = await fetch("/api/profil", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dataToSend)
+        });
+
+        if (!res.ok) throw new Error("Erreur serveur");
+
+        alert("Profil mis à jour !");
+      } catch (err) {
+        alert("Une erreur est survenue lors de la sauvegarde.");
+        console.error(err);
+      }
+
+      // Repasser en lecture seule
+      document.querySelectorAll(".input-field").forEach(input => input.setAttribute("readonly", true));
+      document.getElementById("communitiesFieldset").disabled = true;
+      document.getElementById("saveBtn").disabled = true;
+      document.getElementById("profileContainer").classList.remove("editing");
+      document.getElementById("passwordBox").style.display = "none";
+    });
+  </script>
+</body>
+</html>
