@@ -12,31 +12,15 @@ Une application communautaire destinée aux personnes en situation de handicap p
 - Backend : Node.js, Express.js
 - Base de données : Fichier JSON local
 
----
-
-## ⚙️ Prérequis
-
-Assurez-vous d’avoir installé :
-
-- [Node.js](https://nodejs.org/)
-- `npm` (inclus avec Node.js)
-
----
 
 ## 🛠️ Installation du projet
 
-1. **Cloner le dépôt**
-
-```bash
-git clone https://github.com/TON_NOM/Assurancetourix.git
-```
-
-2. **Installer les dépendances**
+1. **Installer les dépendances présente dans le fichier package.json**
 ```bash
 npm install
 ```
 
-3. **Lancer le projet sur le port 3000**
+2. **Lancer le projet sur le port 3000**
 ```bash
 npm start
 ```
