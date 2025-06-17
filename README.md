@@ -10,7 +10,7 @@ Une application communautaire destinée aux personnes en situation de handicap p
 
 - Frontend : HTML, CSS, JavaScript
 - Backend : Node.js, Express.js
-- Base de données : Fichier JSON local
+- Base de données : MongoDB
 
 
 ## 🛠️ Installation du projet
