@@ -24,7 +24,3 @@ npm install
 ```bash
 node ./app.js
 ```
-Ou
-```bash
-npm start
-```
