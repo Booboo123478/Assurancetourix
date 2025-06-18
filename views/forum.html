@@ -7,10 +7,13 @@
   <link rel="stylesheet" href="/style.css" />
   <style>
     body {
-      display: flex;
       font-family: sans-serif;
     }
 
+    .main-content {
+      display: flex;
+      padding-top: 100px;
+    }
     .sidebar {
       width: 250px;
       background: #f4f4f4;
@@ -71,23 +74,49 @@
   </style>
 </head>
 <body>
-  <div class="sidebar">
-    <h2>Mes Communautés</h2>
-    <ul id="communityList">
-    </ul>
-  </div>
 
-  <div class="forum-content">
-    <h1 class="forum-title" id="forumTitle">Sélectionnez une communauté</h1>
+    <header>
+        <nav class="nav">
+            <div class="logo">
+                <a href="/">
+                    <img src="img\Logo-Assurancetourix.png" width="300" alt="Logo Assurancetourix" />
+                </a>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <ul>
+                    <li><a href="/" class="link">Accueil</a></li>
+                    <li><a href="profil" class="link">Profil</a></li>    
+                    <li><a href="forum" class="link active">Communauté</a></li>
+                </ul>
+            </div>
+            <div class="nav-button">
+                <button class="btn white-btn" id="loginBtn" onclick="login()">Se connecter</button>
+                <button class="btn" id="registerBtn" onclick="register()">S'inscrire</button>
+            </div>
+            <div class="nav-menu-btn">
+                <i class="bx bx-menu" onclick="myMenuFunction()"></i>
+            </div>
+        </nav>
+    </header>
+  <main class="main-content">
+    <div class="sidebar">
+        <h2>Mes Communautés</h2>
+        <ul id="communityList">
+        </ul>
+    </div>
 
-    <form id="messageForm" style="display: none;">
-      <textarea id="messageText" placeholder="Votre message..."></textarea>
-      <input type="file" id="mediaFile" accept="image/*,video/*">
-      <button type="submit">Envoyer</button>
-    </form>
+    <div class="forum-content">
+        <h1 class="forum-title" id="forumTitle">Sélectionnez une communauté</h1>
 
-    <div class="message-list" id="messageList"></div>
-  </div>
+        <form id="messageForm" style="display: none;">
+            <textarea id="messageText" placeholder="Votre message..."></textarea>
+            <input type="file" id="mediaFile" accept="image/*,video/*">
+            <button type="submit">Envoyer</button>
+        </form>
+
+        <div class="message-list" id="messageList"></div>
+    </div>
+  </main>
 
 
 
