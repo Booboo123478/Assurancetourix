@@ -28,6 +28,24 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
 
 const User = mongoose.model('User', userSchema);
 
+// Modèle des messages
+const Message = mongoose.model('Message', {
+  communaute: String,
+  auteur: String,
+  texte: String,
+  date: { type: Date, default: Date.now },
+  reactions: {
+    type: Map,
+    of: Number,
+    default: () => new Map()
+  },
+  replies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Message' }],
+  parent: { type: mongoose.Schema.Types.ObjectId, ref: 'Message', default: null },
+  mediaUrl: String
+});
+
+app.use('/img', express.static('img'));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -273,22 +291,6 @@ app.get('/api/debug/messages', async (req, res) => {
   }
 });
 
-// Modèle des messages
-const Message = mongoose.model('Message', {
-  communaute: String,
-  auteur: String,
-  texte: String,
-  date: { type: Date, default: Date.now },
-  reactions: {
-    type: Map,
-    of: Number,
-    default: () => new Map()
-  },
-  replies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Message' }],
-  parent: { type: mongoose.Schema.Types.ObjectId, ref: 'Message', default: null },
-  mediaUrl: String
-});
-
 // Récupérer les Communautés de l'utilisateur
 app.get('/api/communities', async (req, res) => {
   if (!req.user) return res.status(401).json({ message: "Non authentifié" });
@@ -308,7 +310,6 @@ app.get('/api/forums/:communaute/messages', async (req, res) => {
   try {
     const messages = await Message.find({ communaute: req.params.communaute, parent: null })
       .sort({ date: -1 })
-      .limit(50)
       .lean();
 
     for (const msg of messages) {

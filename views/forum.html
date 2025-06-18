@@ -95,6 +95,8 @@
 
 
     <script>
+
+    // Association des objets avec un nom retravaillé pour l'affichage
     const communityTitles = {
         "handicap-visuel": "Handicap Visuel",
         "handicap-moteur": "Handicap Moteur",
@@ -111,6 +113,8 @@
     let pseudo = "Anonyme";
     let currentCommunity = null;
 
+
+    // Gestion de la récupértion de l'utilisateur, de l'envoie d'un msg
     async function init() {
         try {
         const res = await fetch('/api/me');
@@ -119,7 +123,7 @@
         pseudo = `${user.firstName} ${user.lastName}`;
         console.log("Pseudo récupéré:", pseudo);
         } catch (e) {
-        console.warn("Erreur récupération pseudo, on reste Anonyme");
+        console.warn("Erreur récupération pseudo");
         }
 
         messageForm.style.display = 'block';
@@ -164,6 +168,7 @@
         });
     }
 
+    // Gestion des différentes communautés
     window.addEventListener('DOMContentLoaded', async () => {
         try {
         const response = await fetch('/api/communities');
@@ -176,7 +181,7 @@
             communityListEl.innerHTML = '<li>Aucune communauté suivie</li>';
             return;
         }
-
+        
         data.communities.forEach(communaute => {
             const li = document.createElement('li');
             const a = document.createElement('a');
@@ -212,6 +217,7 @@
         }
     });
 
+    // Gestion de l'affichage lors d'un changeement d'URL
     window.addEventListener('popstate', () => {
         const params = new URLSearchParams(window.location.search);
         const comm = params.get('communaute');
@@ -225,6 +231,7 @@
         }
     });
 
+    // Affiche la communauté choisis
     function showForum(communaute) {
         forumTitle.textContent = `Forum - ${communityTitles[communaute] || communaute}`;
         messageForm.style.display = 'block';
@@ -233,6 +240,7 @@
         loadMessages(communaute);
     }
 
+    // Charge les messages
     async function loadMessages(communaute) {
         try {
         const res = await fetch(`/api/forums/${communaute}/messages`);
@@ -262,6 +270,7 @@
         }
     }
 
+    // Créer l'objet message avec gestion des URL, des réactions et des réponses 
     function createMessageElement(msg, isReply = false) {
         const div = document.createElement('div');
         div.classList.add('message-item');
@@ -309,6 +318,7 @@
         return div;
     }
 
+    // Afficher les réponses
     function showReplyForm(id) {
         const form = document.getElementById(`replyForm-${id}`);
         if (form.style.display === 'none') {
@@ -320,6 +330,7 @@
         }
     }
 
+    // Envoyer une réponses
     async function sendReply(parentId) {
         const textarea = document.getElementById(`replyText-${parentId}`);
         const texte = textarea.value.trim();
@@ -343,6 +354,7 @@
         }
     }
 
+    // Gestion des réactions
     function react(messageId, reactionType) {
         fetch(`/api/messages/${messageId}/react`, {
         method: 'POST',
